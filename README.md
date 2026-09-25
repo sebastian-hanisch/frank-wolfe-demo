@@ -9,12 +9,12 @@ mit den Fahrzeiten am aktuellen Verkehr legt es jedes Zonenpaar **alles auf eine
 Das **Systemoptimum** (kleinste Gesamtfahrzeit) ist dasselbe Programm mit den Grenzkosten statt der Fahrzeit. Vehikel: ein Stadtgitter mit Straßen in beide Richtungen, BPR-Fahrzeiten und Zonen mit Nachfrage; dazu zwei Lehrnetze (Pigou, zwei Stufen).
 Anders als in `poa-braess-demo` und `maut-demo` (einzelne Lkw auf einem festen Vier-Knoten-Netz, Gleichgewichte durch Aufzählen) ist der Verkehr hier **stetig teilbar**: es geht nicht um das Paradox, sondern um Rechenverfahren und ihre Genauigkeit.
 
-**Einordnung in die Reihe (die Kanten des Graphen):** Kind des Mehrgüterflusses (Zonenpaare als Güter, konvexe statt lineare Kosten); jede Iteration ist ein Ein-Gut-Fluss mit Kosten wie das Pricing der Column Generation; das Systemoptimum als Gleichgewicht auf Grenzkosten verbindet zu `maut-demo`. Ein pfadbasiertes Folgestück (Gradient Projection, Algorithm B, TAPAS) ist nur erwähnt und wird gebaut, falls die Messung es trägt. Bisher gebaut: die zwölf Stücke der Hauptlinie, alle drei der Erweiterung E1 und dieses Stück.
+**Einordnung in die Reihe (die Kanten des Graphen):** Kind des Mehrgüterflusses (Zonenpaare als Güter, konvexe statt lineare Kosten); jede Iteration ist ein Ein-Gut-Fluss mit Kosten wie das Pricing der Column Generation; das Systemoptimum als Gleichgewicht auf Grenzkosten verbindet zu `maut-demo`. Das pfadbasierte Folgestück ist gebaut: [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (Gradient Projection auf demselben Netz; Algorithm B und TAPAS sind nur erwähnt). Bisher gebaut: die zwölf Stücke der Hauptlinie, alle drei der Erweiterung E1 und beide der Erweiterung E4.
 ```
 multicommodity-demo (mehrere Güter teilen Kapazität)                                    [gebaut]
   ├─ mcf-column-generation-demo, garg-koenemann-demo, fixkosten-netzdesign-demo …        [gebaut]
   └─ frank-wolfe-demo (konvexe Kosten: Nutzergleichgewicht, Alles-oder-nichts-Orakel)    [dieses Stück]
-       └─ gradient-projection-demo (pfadbasiert, Endspurt)                               [nur erwähnt]
+       └─ gradient-projection-demo (pfadbasiert, Endspurt)                               [gebaut, Stück 17]
 ```
 
 ## Ergebnis (Zahlen aus den Tests)
@@ -64,14 +64,14 @@ Vor dem Bau standen sieben Vermutungen im Plan. Gemessen:
 
 ## Ehrliche Grenzen
 
-- **Frank-Wolfe ist langsam am Ende.** Pfadbasierte Verfahren (Gradient Projection, Algorithm B, TAPAS) erreichen hohe Genauigkeit viel schneller; sie sind nur erwähnt.
+- **Frank-Wolfe ist langsam am Ende.** Pfadbasierte Verfahren erreichen hohe Genauigkeit schneller: Gradient Projection unterschreitet im Standardnetz 1e-4 nach 11 statt 102 Iterationen, hat aber mit der Schrittweite eine eigene Schwachstelle (Stück 17, `gradient-projection-demo`); Algorithm B und TAPAS sind nur erwähnt.
 - **Perfekte Information, unendlich viele kleine Fahrer** (Wardrop); Lernen aus Erfahrung ist ein anderes Modell.
 - **Eine Fahrzeugklasse, statische Zuordnung, BPR-Fahrzeiten.**
 - **Synthetische Daten:** ein Gitter mit erzeugten Kapazitäten und Zonen, kein reales Netz, keine Fremddaten (etwa Sioux Falls).
 
 ## Bewusst nicht umgesetzt
 
-- Bi-konjugiertes Frank-Wolfe, pfadbasierte Verfahren (Gradient Projection, Algorithm B, TAPAS), Mehrklassen- und dynamische Umlegung, Maut und Kapazitätserweiterung als eigene Themen.
+- Bi-konjugiertes Frank-Wolfe, Algorithm B und TAPAS (Gradient Projection: siehe Stück 17), Mehrklassen- und dynamische Umlegung, Maut und Kapazitätserweiterung als eigene Themen.
 
 ## Dateien
 
