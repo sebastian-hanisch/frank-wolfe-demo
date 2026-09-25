@@ -1,6 +1,6 @@
 # Frank-Wolfe – wohin fährt der Verkehr, und warum dauert der Endspurt so lang? – Streamlit-Demo
 
-*(noch nicht deployed)*
+**[→ Demo live ausprobieren](https://sebastianhanisch-frank-wolfe-demo.streamlit.app/)**
 
 Vierte Erweiterung (Stück 16, **E4 Verkehrsumlegung**) der **Netzwerkfluss-Linie** der "Konzepte"-Reihe für die Website "Sebastian Hanisch – Operations Research und Machine Learning", Kind von [multicommodity-demo](https://github.com/sebastian-hanisch/multicommodity-demo) und [mcf-column-generation-demo](https://github.com/sebastian-hanisch/mcf-column-generation-demo):
 anders als die Fall-Demos im Portfolio (ein Anwendungsfall, mehrere Verfahren im Vergleich) zeigt diese Demo **ein** Verfahren – **Frank-Wolfe für die Verkehrsumlegung** – an einem wachsenden Beispiel.
