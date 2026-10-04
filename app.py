@@ -267,7 +267,7 @@ else:
             dist = ev.distribution(ev.Params(*params))
         st.plotly_chart(build_dist(dist), width="stretch", key="dist_chart")
         st.table({"Verfahren": [C.METHODS[m] for m in ("fw", "msa", "cfw")], "Lücke 1e-4 nicht erreicht": [f"{dist[m + '_missed']} von {dist['n']}" for m in ("fw", "msa", "cfw")]})
-        st.caption("Das konjugierte Verfahren braucht im Mittel weniger als die Hälfte der Iterationen, ist aber nicht in jedem Netz besser: in einzelnen Netzen bleibt seine Lücke lange stehen. MSA spart die Schrittweitensuche, liegt aber bei der Genauigkeit hinter der exakten Suche.")
+        st.caption("Das konjugierte Verfahren braucht im Mittel weniger Iterationen (bis zur Lücke 1e-4 weniger als die Hälfte der exakten Suche), ist aber nicht in jedem Netz besser: in einzelnen Netzen bleibt seine Lücke lange stehen. MSA spart die Schrittweitensuche, liegt aber bei der Genauigkeit hinter der exakten Suche.")
 
 st.subheader("🔬 Sind die Kantenflüsse eindeutig?")
 st.caption("Frank-Wolfe und konjugiertes Frank-Wolfe nutzen ganz verschiedene Zwischenschritte; am Ende müssen sie bei denselben Kantenflüssen ankommen.")
@@ -280,7 +280,7 @@ else:
         with st.spinner("Rechne beide Verfahren bis zur hohen Genauigkeit..."):
             un = ev.uniqueness(ev.Params(*params))
         u1, u2 = st.columns(2)
-        u1.metric("Größte Abweichung der Kantenflüsse", _pct(un["max_diff"], 4), help="In Prozent der gesamten Nachfrage, nach 800 Iterationen konjugiertem Frank-Wolfe (Lücke unter 1e-8) gegen 1 500 Iterationen Frank-Wolfe.")
+        u1.metric("Größte Abweichung der Kantenflüsse", _pct(un["max_diff"], 4), help="In Prozent der gesamten Nachfrage, nach 800 Iterationen konjugiertem Frank-Wolfe (Lücke unter 1e-9) gegen 1 500 Iterationen Frank-Wolfe.")
         u2.metric("Restlücke des einfachen Verfahrens", _sci(un["gap_b"]))
         st.caption("Die Kantenflüsse stimmen bis auf die Restlücke überein: bei strikt steigenden Fahrzeiten ist das Gleichgewicht auf den Kanten eindeutig. Die Wege, auf denen der Verkehr dorthin kommt, sind es nicht.")
 
@@ -293,14 +293,14 @@ st.markdown(
     """
 | Annahme | Was passiert, wenn sie verletzt ist - und wer ansetzt |
 |---|---|
-| **Frank-Wolfe ist schnell genug** | Der Endspurt ist sublinear: jede weitere Dezimalstelle kostet ein Mehrfaches. **Pfadbasierte Verfahren** (Gradient Projection, Algorithm B, TAPAS) halten Wege und verschieben Verkehr zwischen ihnen; sie erreichen hohe Genauigkeit viel schneller (nur erwähnt, nicht gebaut). |
+| **Frank-Wolfe ist schnell genug** | Der Endspurt ist sublinear: jede weitere Dezimalstelle kostet ein Mehrfaches. **Pfadbasierte Verfahren** (Gradient Projection, Algorithm B, TAPAS) halten Wege und verschieben Verkehr zwischen ihnen; sie erreichen hohe Genauigkeit viel schneller (Gradient Projection ist als eigenes Stück gebaut, Algorithm B und TAPAS sind nur erwähnt). |
 | **Jeder kennt alle Fahrzeiten** | Wardrop setzt perfekte Information und rationale, unendlich viele kleine Fahrer voraus. Lernen aus Erfahrung ist ein anderes Modell (Demo „No-Regret-Lernen“). |
 | **Eine Fahrzeugklasse, statische Zuordnung** | Lkw und Pkw belasten die Straßen verschieden, und Staus bauen sich im Zeitverlauf auf; beides ist hier nicht abgebildet (dynamische Umlegung, Mehrklassen-Umlegung). |
 | **BPR-Fahrzeiten** | Eine glatte Potenzfunktion der Auslastung; echte Kreuzungen und Warteschlangen sind anders. Die Kantenflüsse sind für jede streng steigende Fahrzeit eindeutig, die Zahlen hier gelten für diese Funktion. |
 | **Ein generiertes Netz** | Ein Gitter mit erzeugten Kapazitäten und Zonen, kein reales Stadtnetz und keine Fremddaten. |
 """
 )
-st.caption("Die Netzwerkfluss-Linie ist als Ganzes geplant: die zwölf Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut); ein pfadbasiertes Folgestück ist geplant, falls die Messung es trägt.")
+st.caption("Die Netzwerkfluss-Linie ist als Ganzes geplant: die zwölf Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut) mit dem pfadbasierten Folgestück [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (gebaut).")
 
 st.markdown("---")
 
@@ -327,6 +327,6 @@ st.markdown("---")
 
 st.caption(
     "Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – "
-    "Operations Research und Machine Learning. Interesse an einer maßgeschneiderten Lösung für "
-    "Ihr Unternehmen? [Kontakt aufnehmen](https://sebastianhanisch.net/kontakt.html)"
+    "Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). "
+    "Mehr zur Reihe: [Netzwerkfluss: vom Max-Flow zum Netzdesign](https://sebastianhanisch.net/konzepte-netzwerkfluss.html)."
 )
