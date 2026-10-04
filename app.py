@@ -300,7 +300,7 @@ st.markdown(
 | **Ein generiertes Netz** | Ein Gitter mit erzeugten Kapazitäten und Zonen, kein reales Stadtnetz und keine Fremddaten. |
 """
 )
-st.caption("Die Netzwerkfluss-Linie ist als Ganzes geplant: die zwölf Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut) mit dem pfadbasierten Folgestück [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (gebaut).")
+st.caption("Die Netzwerkfluss-Linie ist als Ganzes geplant: die dreizehn Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut) mit dem pfadbasierten Folgestück [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (gebaut).")
 
 st.markdown("---")
 
