@@ -113,17 +113,17 @@ def dist():
 
 
 def test_conjugate_versus_the_others_over_forty_nets(dist):
-    """40 feste Netze (200 Iterationen, nicht erreicht = 201): Iterationen bis 1e-3: Frank-Wolfe 35,3, MSA 55,3, konjugiert 22,6; bis 1e-4: 159, 183, 70; Lücke 1e-4 nicht erreicht in 22 / 31 / 8 von 40 Netzen;
-    mittlere Lücke nach 100 Iterationen 4e-4 / 6e-4 / 2e-4."""
+    """40 feste Netze (200 Iterationen, nicht erreicht = 201): Iterationen bis 1e-3: Frank-Wolfe 35,3, MSA 55,3, konjugiert 13,3; bis 1e-4: 159, 183, 37; Lücke 1e-4 nicht erreicht in 22 / 31 / 0 von 40 Netzen;
+    mittlere Lücke nach 100 Iterationen 4e-4 / 6e-4 / 5e-5. (Vor der Korrektur des Deckels alpha <= 1 - delta: 22,6 / 70 / 8 / 2e-4.)"""
     assert dist["n"] == 40
-    assert dist["fw_its3"] == pytest.approx(35.3, abs=3) and dist["msa_its3"] == pytest.approx(55.3, abs=4) and dist["cfw_its3"] == pytest.approx(22.6, abs=3)
-    assert dist["fw_its4"] == pytest.approx(159, abs=8) and dist["msa_its4"] == pytest.approx(183, abs=8) and dist["cfw_its4"] == pytest.approx(70, abs=8)
-    assert (dist["fw_missed"], dist["msa_missed"], dist["cfw_missed"]) == pytest.approx((22, 31, 8), abs=2)
-    assert dist["fw_gap100"] == pytest.approx(4e-4, rel=0.4) and dist["msa_gap100"] == pytest.approx(6e-4, rel=0.4) and dist["cfw_gap100"] == pytest.approx(2e-4, rel=0.5)
+    assert dist["fw_its3"] == pytest.approx(35.3, abs=3) and dist["msa_its3"] == pytest.approx(55.3, abs=4) and dist["cfw_its3"] == pytest.approx(13.3, abs=2)
+    assert dist["fw_its4"] == pytest.approx(159, abs=8) and dist["msa_its4"] == pytest.approx(183, abs=8) and dist["cfw_its4"] == pytest.approx(37, abs=6)
+    assert (dist["fw_missed"], dist["msa_missed"], dist["cfw_missed"]) == pytest.approx((22, 31, 0), abs=2)
+    assert dist["fw_gap100"] == pytest.approx(4e-4, rel=0.4) and dist["msa_gap100"] == pytest.approx(6e-4, rel=0.4) and dist["cfw_gap100"] == pytest.approx(5e-5, rel=0.5)
     assert dist["cfw_its4"] < dist["fw_its4"] < dist["msa_its4"]
 
 
 def test_the_conjugate_variant_is_not_better_in_every_net(dist):
-    """Nicht in jedem Netz: in mindestens einem der 40 Netze erreicht das konjugierte Verfahren 1e-3 später oder gar nicht, während die Schrittweitensuche es schafft."""
+    """Nicht in jedem Netz: in 2 der 40 Netze erreicht das konjugierte Verfahren 1e-3 später als die Schrittweitensuche (7 statt 5, 11 statt 8), nie aber gar nicht."""
     worse = [r for r in dist["rows"] if r["fw"]["its3"] is not None and (r["cfw"]["its3"] is None or r["cfw"]["its3"] > r["fw"]["its3"])]
-    assert len(worse) >= 1
+    assert 1 <= len(worse) <= 4 and all(r["cfw"]["its3"] is not None for r in dist["rows"])

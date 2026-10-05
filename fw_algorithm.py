@@ -7,6 +7,7 @@ Das ist die Lösung des Beckmann-Programms min Summe_e Integral_0^{x_e} t_e(s) d
 **Frank-Wolfe:** in jedem Schritt die Kosten am aktuellen Verkehr x berechnen, jedes Zonenpaar **alles auf einen schnellsten Weg** legen (Alles-oder-nichts, ein Kürzeste-Wege-Lauf je Ursprungszone: dasselbe Orakel wie im Pricing
 der Column-Generation-Demo) und den Verkehr ein Stück in diese Richtung schieben: x <- x + a (y - x). Schrittweite a: **exakte Suche** (Bisektion auf der Richtungsableitung), **MSA** (a = 1 / (k + 1)), **fest** (0,5, Negativkontrolle).
 **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013) ersetzt y durch einen Punkt, der zur vorigen Richtung bezüglich der (diagonalen) Hesse-Matrix konjugiert ist, und zickzackt weniger.
+Neustart mit der Frank-Wolfe-Richtung y (alpha = 0): wenn der Verkehr schon auf dem alten Zielpunkt liegt, wenn alpha an die Grenze 1 - delta stößt (der neue Zielpunkt wäre fast der alte; mit dem Deckel alpha = 1 - delta blieb das Verfahren in 8 von 40 Stadtgittern für immer stehen) oder wenn die Richtung keine Abstiegsrichtung ist.
 
 **Relative Lücke:** (Summe x t - Summe y t) / Summe x t; sie ist 0 genau im Gleichgewicht. Aufwand wird in Kürzeste-Wege-Läufen und in durchsuchten Kanten gezählt, nie in Sekunden.
 Die Rechnung nutzt nur + - * / auf Python-Zahlen (Potenzen als Produkte): auf allen Plattformen dieselben Iterationszahlen.
@@ -217,7 +218,9 @@ def assign(net, mode="ue", method="fw", max_iter=300, tol=1e-6, delta=1e-6):
             den = sum((s_prev[k] - x[k]) * h[k] * (y[k] - s_prev[k]) for k in range(m))
             back = sum((s_prev[k] - x[k]) ** 2 * h[k] for k in range(m))
             fwd = sum((y[k] - x[k]) ** 2 * h[k] for k in range(m))
-            alpha = 0.0 if (den == 0 or back <= 1e-12 * fwd) else max(0.0, min(num / den, 1 - delta))          # x liegt schon auf dem alten Zielpunkt: neu beginnen
+            # Neustart mit der Frank-Wolfe-Richtung (alpha = 0), wenn x schon auf dem alten Zielpunkt liegt oder alpha an die Grenze 1 - delta stößt: dann wäre der neue Zielpunkt
+            # (fast) der alte, die Richtung nahezu neutral, der Schritt ~ 0 - und die nächste Iteration rechnet dasselbe (der Verkehr bliebe für immer stehen)
+            alpha = 0.0 if (den == 0 or back <= 1e-12 * fwd or num / den >= 1 - delta) else max(0.0, num / den)
             target = [alpha * s_prev[k] + (1 - alpha) * y[k] for k in range(m)]
             if sum((target[k] - x[k]) * cost[k] for k in range(m)) >= 0:       # keine Abstiegsrichtung mehr: zurück zur Frank-Wolfe-Richtung
                 target = y

@@ -267,7 +267,7 @@ else:
             dist = ev.distribution(ev.Params(*params))
         st.plotly_chart(build_dist(dist), width="stretch", key="dist_chart")
         st.table({"Verfahren": [C.METHODS[m] for m in ("fw", "msa", "cfw")], "Lücke 1e-4 nicht erreicht": [f"{dist[m + '_missed']} von {dist['n']}" for m in ("fw", "msa", "cfw")]})
-        st.caption("Das konjugierte Verfahren braucht im Mittel weniger Iterationen (bis zur Lücke 1e-4 weniger als die Hälfte der exakten Suche), ist aber nicht in jedem Netz besser: in einzelnen Netzen bleibt seine Lücke lange stehen. MSA spart die Schrittweitensuche, liegt aber bei der Genauigkeit hinter der exakten Suche.")
+        st.caption("Das konjugierte Verfahren braucht im Mittel weniger Iterationen (bis zur Lücke 1e-4 weniger als die Hälfte der exakten Suche), ist aber nicht in jedem Netz besser: in einzelnen Netzen braucht es bis 1e-3 ein paar Iterationen länger als die Suche. MSA spart die Schrittweitensuche, liegt aber bei der Genauigkeit hinter der exakten Suche.")
 
 st.subheader("🔬 Sind die Kantenflüsse eindeutig?")
 st.caption("Frank-Wolfe und konjugiertes Frank-Wolfe nutzen ganz verschiedene Zwischenschritte; am Ende müssen sie bei denselben Kantenflüssen ankommen.")
@@ -300,7 +300,7 @@ st.markdown(
 | **Ein generiertes Netz** | Ein Gitter mit erzeugten Kapazitäten und Zonen, kein reales Stadtnetz und keine Fremddaten. |
 """
 )
-st.caption("Die Netzwerkfluss-Linie ist als Ganzes geplant: die dreizehn Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut) mit dem pfadbasierten Folgestück [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (gebaut).")
+st.caption("Die Netzwerkfluss-Linie umfasst: die dreizehn Stücke der Hauptlinie (gebaut), die Erweiterung E1 (Projektauswahl, Graph Cuts, Gomory-Hu-Baum) und die Erweiterung E4: **Frank-Wolfe** (dieses Stück, gebaut) mit dem pfadbasierten Folgestück [gradient-projection-demo](https://github.com/sebastian-hanisch/gradient-projection-demo) (gebaut).")
 
 st.markdown("---")
 
@@ -315,7 +315,7 @@ Die Zielfunktion ist streng konvex in $x$: die Kantenflüsse sind eindeutig.
 
 **Frank-Wolfe.** Mit den Kosten $t(x^k)$ ist $y^k$ (Alles-oder-nichts) die Lösung der linearisierten Aufgabe, $y^k-x^k$ eine Abstiegsrichtung; $x^{k+1}=x^k+a_k(y^k-x^k)$. Relative Lücke $g_k=\big(t(x^k)^\top(x^k-y^k)\big)/\big(t(x^k)^\top x^k\big)\ge0$; sie ist 0 genau im Gleichgewicht. Bekannt: die Konvergenz ist sublinear, die Iterationen wachsen etwa mit $1/\varepsilon$; der Grund ist das Zickzack, weil $y^k$ eine Ecke ist und die Lösung im Innern der Fläche liegt.
 
-**MSA:** $a_k=1/(k+1)$ ohne Suche. **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013): $s^k=\alpha_k s^{k-1}+(1-\alpha_k)y^k$ mit $\alpha_k=\dfrac{(s^{k-1}-x^k)^\top H_k\,(y^k-x^k)}{(s^{k-1}-x^k)^\top H_k\,(y^k-s^{k-1})}\in[0,1-\delta]$ und der (diagonalen) Hesse-Matrix $H_k$ der Zielfunktion; Richtung $s^k-x^k$, sonst wie Frank-Wolfe. Ist $x^k$ schon auf $s^{k-1}$ angekommen oder die Richtung keine Abstiegsrichtung, beginnt das Verfahren mit der Frank-Wolfe-Richtung neu.
+**MSA:** $a_k=1/(k+1)$ ohne Suche. **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013): $s^k=\alpha_k s^{k-1}+(1-\alpha_k)y^k$ mit $\alpha_k=\dfrac{(s^{k-1}-x^k)^\top H_k\,(y^k-x^k)}{(s^{k-1}-x^k)^\top H_k\,(y^k-s^{k-1})}\in[0,1-\delta]$ und der (diagonalen) Hesse-Matrix $H_k$ der Zielfunktion; Richtung $s^k-x^k$, sonst wie Frank-Wolfe. Ist $x^k$ schon auf $s^{k-1}$ angekommen, stößt $\alpha_k$ an die Grenze $1-\delta$ (der neue Zielpunkt wäre fast der alte) oder ist die Richtung keine Abstiegsrichtung, beginnt das Verfahren mit der Frank-Wolfe-Richtung neu.
 
 **Aufwand.** Eine Iteration kostet einen Dijkstra-Lauf je Ursprungszone (das Kürzeste-Wege-Orakel der Hauptlinie); die Schrittweitensuche rechnet nur Fahrzeitfunktionen aus.
 
