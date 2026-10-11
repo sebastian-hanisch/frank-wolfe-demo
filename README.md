@@ -39,7 +39,7 @@ Pigou (von Hand): Gleichgewicht alle auf die zweite Straße, Fahrzeit 1, Systemo
 
 Vor dem Bau standen sieben Vermutungen im Plan. Gemessen:
 
-- **„Der Schwanz ist sublinear, etwa ×10 je Dezimalstelle“ – bestätigt**, auf hohe Last verstärkt (Iterationen bis 1e-3: 2 → 24 → 117 → 249 bei Last 0,5 → 2,0).
+- **„Der Tail ist sublinear, etwa ×10 je Dezimalstelle“ – bestätigt**, auf hohe Last verstärkt (Iterationen bis 1e-3: 2 → 24 → 117 → 249 bei Last 0,5 → 2,0).
 - **„Die Schrittweitensuche schlägt MSA“ – nur mäßig.** MSA braucht bis 1e-3 etwa 57 statt 21 Iterationen und erreicht 1e-4 in 200 nicht; dafür kostet sie keine Suche. Am Ende gleiche Gesamtfahrzeit (6 898); die Suche erreicht die Lücke 5,8e-5, MSA 2,9e-4.
 - **„Konjugiertes Frank-Wolfe ist deutlich schneller“ – bestätigt (37 statt 159 Iterationen bis 1e-4), aber nicht in jedem Netz (2 von 40 etwas langsamer bis 1e-3).** Es brauchte eine Absicherung: liegt der Verkehr schon auf dem alten Zielpunkt, ist die Richtung keine Abstiegsrichtung oder stößt $\alpha$ an die Grenze $1-\delta$, beginnt es mit der Frank-Wolfe-Richtung neu. Die erste Fassung deckelte $\alpha$ nur bei $1-\delta$ und blieb dadurch in 8 von 40 Netzen für immer stehen (Schritte um 1e-6, Lücke dauerhaft bei 1e-3 und mehr; 70 statt 37 Iterationen im Mittel): der Orakel-Vergleich gegen eine pfadbasierte scipy-Lösung und eine networkx-Lücke deckte das auf.
 - **„Der Preis der Anarchie ist klein“ – bestätigt, aber nicht null:** im Mittel 0,5 bis 6,6 %, im größten Netz 11,5 %. Die Werte gelten für diese erzeugten Gitter.
