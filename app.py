@@ -68,6 +68,19 @@ In einem Stadtnetz wählt jeder Fahrer den schnellsten Weg - aber wie schnell ei
 Das Verfahren ist einfach und robust - und hat einen **langsamen Endspurt**: die ersten Prozent Genauigkeit kommen schnell, jede weitere Dezimalstelle kostet ein Vielfaches. Diese Demo zeigt den Verlauf, drei Schrittweiten (exakte Suche, 1/(k+1), konjugiert), wie genau man überhaupt rechnen muss - und was das **Systemoptimum** gegenüber dem Gleichgewicht kostet.
 """
 )
+
+# erklaerseite:einfach:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/frank-wolfe-erklaert.json, nicht von Hand ändern)
+with st.expander("💬 In einfachen Worten"):
+    st.markdown(
+        """
+In einer Stadt wählt jeder Fahrer den schnellsten Weg, aber wie schnell ein Weg ist, hängt davon ab, wie viele andere ihn wählen. Im **Nutzergleichgewicht** ist kein benutzter Weg länger als ein anderer. **Frank-Wolfe** berechnet es in Runden: Mit den Fahrzeiten beim aktuellen Verkehr legt das Verfahren in Gedanken jedes Zonenpaar komplett auf seinen schnellsten Weg und schiebt den Verkehr ein Stück in diese Richtung. Das ist einfach und robust.
+
+Der Endspurt dauert allerdings lange: Die ersten Stellen an Genauigkeit kommen schnell, jede weitere kostet ein Mehrfaches. Die Demo zeigt den Verlauf, vergleicht drei Schrittweiten und fragt, wie genau man rechnen muss und was das Systemoptimum gegenüber dem Gleichgewicht spart.
+
+[Ausführlich und verständlich erklärt, mit Fachteil](https://sebastianhanisch.net/frank-wolfe-erklaert.html)
+        """
+    )
+# erklaerseite:einfach:end
 st.caption(
     "Anders als die Fall-Demos im Portfolio, die an einem Anwendungsfall mehrere Verfahren vergleichen, zeigt diese Demo - vierte Erweiterung (E4) der Netzwerkfluss-Linie der \"Konzepte\"-Reihe, Kind des Mehrgüterflusses - **ein** Verfahren an einem wachsenden Beispiel. "
     "Anders als in den Demos \"Preis der Anarchie & Braess-Paradox\" und \"Maut & Grenzkosten-Preise\" (einzelne Lkw auf einem festen Vier-Knoten-Netz, Gleichgewichte durch Aufzählen) ist der Verkehr hier **stetig teilbar** und das Netz ein Stadtgitter: es geht nicht um das Paradox, sondern um **Rechenverfahren und ihre Genauigkeit**."
@@ -305,6 +318,24 @@ st.caption("Die Netzwerkfluss-Linie umfasst: die dreizehn Stücke der Hauptlinie
 st.markdown("---")
 
 with st.expander("📐 Mathematische Formulierung"):
+    # erklaerseite:lesehilfe:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/frank-wolfe-erklaert.json, nicht von Hand ändern)
+    st.markdown(
+        r"""
+**Lesehilfe.** Gegeben sind ein Straßennetz mit Fahrzeiten, die mit dem Verkehr steigen, und eine Nachfrage zwischen Zonenpaaren. Gesucht ist der Verkehr $x$ auf den Straßen, bei dem kein Fahrer durch einen Wechsel Zeit spart (Nutzergleichgewicht), und wie viele Iterationen Frank-Wolfe dafür braucht.
+
+| Symbol | Bedeutung |
+|---|---|
+| $x_e$, $t_e(x_e)$ | Verkehr auf der Straße $e$ und ihre Fahrzeit |
+| $c_e$, $p$ | Kapazität der Straße $e$ und Exponent der Fahrzeitfunktion |
+| $Z(x)$ | Zielfunktion des Beckmann-Programms; ihr Minimum ist das Nutzergleichgewicht |
+| $y^k$ | Alles-oder-nichts-Verkehr: jedes Zonenpaar komplett auf einem schnellsten Weg |
+| $a_k$ | Schrittweite: Anteil, der von $x^k$ nach $y^k$ verschoben wird |
+| $g_k$ | relative Lücke: Anteil der Fahrzeit, den ein Wechsel aller auf die schnellsten Wege noch sparen würde |
+
+[Schritt für Schritt erklärt, mit Herleitung und Literatur](https://sebastianhanisch.net/frank-wolfe-erklaert.html#fachleute)
+        """
+    )
+    # erklaerseite:lesehilfe:end
     st.markdown(
         r"""
 **Nutzergleichgewicht (Wardrop).** Für jedes Zonenpaar $w$ gilt: alle benutzten Wege sind gleich lang und nicht länger als jeder unbenutzte. Äquivalent (Beckmann 1956) löst der Kantenverkehr $x$ das konvexe Programm
