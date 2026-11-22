@@ -5,7 +5,7 @@ Das ist die Lösung des Beckmann-Programms min Summe_e Integral_0^{x_e} t_e(s) d
 **Systemoptimum (SO):** minimale Gesamtfahrzeit Summe x_e t_e(x_e); es ist dasselbe Programm mit den **Grenzkosten** t_e + x_e t_e' statt der Fahrzeit (Pigou, Beckmann).
 
 **Frank-Wolfe:** in jedem Schritt die Kosten am aktuellen Verkehr x berechnen, jedes Zonenpaar **alles auf einen schnellsten Weg** legen (Alles-oder-nichts, ein Kürzeste-Wege-Lauf je Ursprungszone: dasselbe Orakel wie im Pricing
-der Column-Generation-Demo) und den Verkehr ein Stück in diese Richtung schieben: x <- x + a (y - x). Schrittweite a: **exakte Suche** (Bisektion auf der Richtungsableitung), **MSA** (a = 1 / (k + 1)), **fest** (0,5, Negativkontrolle).
+der Column-Generation-Demo) und den Verkehr ein Stück in diese Richtung schieben: x <- x + a (y - x). Schrittweite a: **exakte Liniensuche** (Bisektion auf der Richtungsableitung), **MSA** (a = 1 / (k + 1)), **fest** (0,5, Negativkontrolle).
 **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013) ersetzt y durch einen Punkt, der zur vorigen Richtung bezüglich der (diagonalen) Hesse-Matrix konjugiert ist, und zickzackt weniger.
 Neustart mit der Frank-Wolfe-Richtung y (alpha = 0): wenn der Verkehr schon auf dem alten Zielpunkt liegt, wenn alpha an die Grenze 1 - delta stößt (der neue Zielpunkt wäre fast der alte; mit dem Deckel alpha = 1 - delta blieb das Verfahren in 8 von 40 Stadtgittern für immer stehen) oder wenn die Richtung keine Abstiegsrichtung ist.
 
@@ -195,7 +195,7 @@ def line_search(net, mode, x, d, lo=0.0, hi=1.0, rounds=20, coefs=None):
 
 
 def assign(net, mode="ue", method="fw", max_iter=300, tol=1e-6, delta=1e-6):
-    """Verkehrsumlegung. `method`: 'fw' (exakte Schrittweite), 'msa', 'cfw' (konjugiert), 'fixed' (Schritt 0,5). Stoppt bei relativer Lücke unter `tol` oder nach `max_iter` Iterationen."""
+    """Verkehrsumlegung. `method`: 'fw' (exakte Liniensuche), 'msa', 'cfw' (konjugiert), 'fixed' (Schritt 0,5). Stoppt bei relativer Lücke unter `tol` oder nach `max_iter` Iterationen."""
     assert method in METHODS and mode in MODES
     f, fd, _ = cost_fn(mode)
     m = net.m

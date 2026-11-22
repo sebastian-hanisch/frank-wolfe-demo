@@ -19,7 +19,7 @@ multicommodity-demo (mehrere Güter teilen Kapazität)                          
 
 ## Ergebnis (Zahlen aus den Tests)
 
-Jede hier genannte Zahl ist in `tests/test_claims.py` belegt: Lehrnetze von Hand, Beispielnetze über ihre Seeds, Verteilungen über 40 feste Netze (Seeds ab 100000; die Lastreihe über 5 Netze). Standard: 8 × 8 Kreuzungen (224 Kanten), 6 Zonen, 30 Zonenpaare, Last 1,0, Seed 5, Frank-Wolfe mit exakter Schrittweite, höchstens 200 Iterationen.
+Jede hier genannte Zahl ist in `tests/test_claims.py` belegt: Lehrnetze von Hand, Beispielnetze über ihre Seeds, Verteilungen über 40 feste Netze (Seeds ab 100000; die Lastreihe über 5 Netze). Standard: 8 × 8 Kreuzungen (224 Kanten), 6 Zonen, 30 Zonenpaare, Last 1,0, Seed 5, Frank-Wolfe mit exakter Liniensuche, höchstens 200 Iterationen.
 Die Rechnung nutzt nur + − × ÷ auf Python-Zahlen (keine Bibliotheksfunktionen): Iterationszahlen sind auf allen Plattformen dieselben. Aufwand zählt in Kürzeste-Wege-Läufen (6 je Iteration, einer je Ursprungszone), nie in Sekunden.
 
 **Der Endspurt ist lang.** Die relative Lücke (Anteil der Fahrzeit, den ein Wechsel aller auf die kürzesten Wege noch sparen würde) fällt schnell und dann immer langsamer: 1e-2 nach **4**, 1e-3 nach **21**, 1e-4 nach **102** Iterationen, 1e-5 in 200 nicht (Lücke am Ende 5,8e-5) – jede weitere Dezimalstelle kostet ein Mehrfaches.
@@ -27,8 +27,8 @@ Je mehr Verkehr, desto länger (Mittel über 5 Netze, Frank-Wolfe; „nicht erre
 
 **Wie genau muss man rechnen?** Gegen eine sehr genaue Lösung: bei Lücke 1e-2 (Iteration 4) liegt die Gesamtfahrzeit 1,6 % daneben, der größte Kantenfluss 2,0 % der Nachfrage; bei 1e-3 (Iteration 21) 0,07 % bzw. 0,45 %; bei 1e-4 (Iteration 102) 0,015 % bzw. 0,074 %. **Die Gesamtfahrzeit stimmt früh, die Kantenflüsse brauchen länger** – wer Flüsse für eine Maut oder eine Straßenplanung braucht, rechnet weiter.
 
-**Drei Schrittweiten.** Iterationen bis 1e-2 / 1e-3 / 1e-4 / 1e-5 im Standardnetz: Frank-Wolfe mit exakter Suche **4 / 21 / 102 / –**, MSA (Schritt 1/(k+1), keine Suche) **7 / 57 / – / –**, **konjugiertes Frank-Wolfe 4 / 15 / 24 / 69** (fertig, Lücke unter 1e-6, nach 145 Iterationen). Über 40 Netze (200 Iterationen, „nicht erreicht“ = 201): bis 1e-3 im Mittel 35,3 / 55,3 / **13,3**, bis 1e-4 159 / 183 / **37**; 1e-4 nicht erreicht in 22 / 31 / **0** von 40 Netzen.
-Das konjugierte Verfahren ist im Mittel viel schneller, aber **nicht in jedem Netz besser**: in 2 von 40 Netzen braucht es bis 1e-3 etwas länger als die Suche (7 statt 5 und 11 statt 8 Iterationen). Mit **festem Schritt 0,5** konvergiert Frank-Wolfe nicht: die Lücke bleibt bei 4,2e-2, die Gesamtfahrzeit bei 7 275 (5,5 % über dem Gleichgewicht).
+**Drei Schrittweiten.** Iterationen bis 1e-2 / 1e-3 / 1e-4 / 1e-5 im Standardnetz: Frank-Wolfe mit exakter Liniensuche **4 / 21 / 102 / –**, MSA (Schritt 1/(k+1), keine Liniensuche) **7 / 57 / – / –**, **konjugiertes Frank-Wolfe 4 / 15 / 24 / 69** (fertig, Lücke unter 1e-6, nach 145 Iterationen). Über 40 Netze (200 Iterationen, „nicht erreicht“ = 201): bis 1e-3 im Mittel 35,3 / 55,3 / **13,3**, bis 1e-4 159 / 183 / **37**; 1e-4 nicht erreicht in 22 / 31 / **0** von 40 Netzen.
+Das konjugierte Verfahren ist im Mittel viel schneller, aber **nicht in jedem Netz besser**: in 2 von 40 Netzen braucht es bis 1e-3 etwas länger als Frank-Wolfe mit exakter Liniensuche (7 statt 5 und 11 statt 8 Iterationen). Mit **festem Schritt 0,5** konvergiert Frank-Wolfe nicht: die Lücke bleibt bei 4,2e-2, die Gesamtfahrzeit bei 7 275 (5,5 % über dem Gleichgewicht).
 
 **Preis der Anarchie auf einem Stadtgitter.** Gesamtfahrzeit im Gleichgewicht geteilt durch die im Systemoptimum: im Standardnetz **1,040** (6 897 gegen 6 632; die höchste Auslastung einer Kante sinkt von 169 % auf 127 %), im Mittel über 5 Netze bei Last 0,5 / 1,0 / 1,5 / 2,0 / 3,0: **1,005 / 1,026 / 1,056 / 1,066 / 1,065**, größter Wert 1,115. Der Extremfall 4/3 des Braess- und Pigou-Netzes kommt hier nicht vor.
 Pigou (von Hand): Gleichgewicht alle auf die zweite Straße, Fahrzeit 1, Systemoptimum halb und halb, 0,75, Preis der Anarchie **4/3**.
@@ -40,7 +40,7 @@ Pigou (von Hand): Gleichgewicht alle auf die zweite Straße, Fahrzeit 1, Systemo
 Vor dem Bau standen sieben Vermutungen im Plan. Gemessen:
 
 - **„Der Tail ist sublinear, etwa ×10 je Dezimalstelle“ – bestätigt**, auf hohe Last verstärkt (Iterationen bis 1e-3: 2 → 24 → 117 → 249 bei Last 0,5 → 2,0).
-- **„Die Schrittweitensuche schlägt MSA“ – nur mäßig.** MSA braucht bis 1e-3 etwa 57 statt 21 Iterationen und erreicht 1e-4 in 200 nicht; dafür kostet sie keine Suche. Am Ende gleiche Gesamtfahrzeit (6 898); die Suche erreicht die Lücke 5,8e-5, MSA 2,9e-4.
+- **„Die Liniensuche schlägt MSA“ – nur mäßig.** MSA braucht bis 1e-3 etwa 57 statt 21 Iterationen und erreicht 1e-4 in 200 nicht; dafür braucht sie keine Liniensuche. Am Ende gleiche Gesamtfahrzeit (6 898); die exakte Liniensuche erreicht die Lücke 5,8e-5, MSA 2,9e-4.
 - **„Konjugiertes Frank-Wolfe ist deutlich schneller“ – bestätigt (37 statt 159 Iterationen bis 1e-4), aber nicht in jedem Netz (2 von 40 etwas langsamer bis 1e-3).** Es brauchte eine Absicherung: liegt der Verkehr schon auf dem alten Zielpunkt, ist die Richtung keine Abstiegsrichtung oder stößt $\alpha$ an die Grenze $1-\delta$, beginnt es mit der Frank-Wolfe-Richtung neu. Die erste Fassung deckelte $\alpha$ nur bei $1-\delta$ und blieb dadurch in 8 von 40 Netzen für immer stehen (Schritte um 1e-6, Lücke dauerhaft bei 1e-3 und mehr; 70 statt 37 Iterationen im Mittel): der Orakel-Vergleich gegen eine pfadbasierte scipy-Lösung und eine networkx-Lücke deckte das auf.
 - **„Der Preis der Anarchie ist klein“ – bestätigt, aber nicht null:** im Mittel 0,5 bis 6,6 %, im größten Netz 11,5 %. Die Werte gelten für diese erzeugten Gitter.
 - **„Kantenflüsse eindeutig, Wegeflüsse nicht“ – bestätigt** (Kantenflüsse übereinstimmend bis 0,004 %, Lehrnetz mit drei Aufteilungen).
@@ -59,7 +59,7 @@ Vor dem Bau standen sieben Vermutungen im Plan. Gemessen:
 
 - **Fahrzeit:** $t_e(x)=a_e+b_e(x/c_e)^p$ (BPR: $a_e$ Freifahrtzeit 2 bis 6, $b_e=0{,}15\,a_e$, Kapazität 20 bis 45, $p=4$); Lehrnetze mit $p=1$.
 - **Nutzergleichgewicht:** $\min\sum_e\int_0^{x_e}t_e$ unter Flusserhaltung je Zonenpaar. **Systemoptimum:** $\min\sum_e x_e t_e$, dasselbe Programm mit den Grenzkosten $t_e+x_e t_e'$.
-- **Frank-Wolfe:** Alles-oder-nichts $y$ mit den Kosten am aktuellen Verkehr, $x\leftarrow x+a(y-x)$; $a$ per Bisektion auf der Richtungsableitung (exakt), $1/(k+1)$ (MSA) oder 0,5 (fest, Kontrolle). **Konjugiert** (Mitradjieva und Lindberg 2013): Zielpunkt $s^k=\alpha s^{k-1}+(1-\alpha)y^k$ mit diagonaler Hesse-Matrix.
+- **Frank-Wolfe:** Alles-oder-nichts $y$ mit den Kosten am aktuellen Verkehr, $x\leftarrow x+a(y-x)$; $a$ per Bisektion auf der Richtungsableitung (exakte Liniensuche), $1/(k+1)$ (MSA) oder 0,5 (fest, Kontrolle). **Konjugiert** (Mitradjieva und Lindberg 2013): Zielpunkt $s^k=\alpha s^{k-1}+(1-\alpha)y^k$ mit diagonaler Hesse-Matrix.
 - **Relative Lücke:** $(\sum x t-\sum y t)/\sum x t$; 0 genau im Gleichgewicht. Aufwand: Kürzeste-Wege-Läufe und durchsuchte Kanten.
 
 ## Ehrliche Grenzen

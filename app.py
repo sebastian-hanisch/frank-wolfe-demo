@@ -65,7 +65,7 @@ st.markdown(
     """
 In einem Stadtnetz wählt jeder Fahrer den schnellsten Weg - aber wie schnell ein Weg ist, hängt davon ab, wie viele andere ihn wählen. Im **Nutzergleichgewicht** (Wardrop 1952) ist kein Weg, den jemand benutzt, länger als ein anderer: eine konvexe Optimierungsaufgabe, das **Beckmann-Programm**.
 **Frank-Wolfe** löst sie mit dem, was die Netzwerkfluss-Linie schon kann: in jedem Schritt die Fahrzeiten am aktuellen Verkehr berechnen, jedes Zonenpaar **alles auf den schnellsten Weg** legen (ein Kürzeste-Wege-Lauf je Ursprung) und den Verkehr ein Stück in diese Richtung schieben.
-Das Verfahren ist einfach und robust - und hat einen **langsamen Endspurt**: die ersten Prozent Genauigkeit kommen schnell, jede weitere Dezimalstelle kostet ein Vielfaches. Diese Demo zeigt den Verlauf, drei Schrittweiten (exakte Suche, 1/(k+1), konjugiert), wie genau man überhaupt rechnen muss - und was das **Systemoptimum** gegenüber dem Gleichgewicht kostet.
+Das Verfahren ist einfach und robust - und hat einen **langsamen Endspurt**: die ersten Prozent Genauigkeit kommen schnell, jede weitere Dezimalstelle kostet ein Vielfaches. Diese Demo zeigt den Verlauf, drei Schrittweiten (exakte Liniensuche, 1/(k+1), konjugiert), wie genau man überhaupt rechnen muss - und was das **Systemoptimum** gegenüber dem Gleichgewicht kostet.
 """
 )
 
@@ -92,7 +92,7 @@ with st.expander("So funktioniert Frank-Wolfe", expanded=True):
 1. **Fahrzeiten:** jede Straße hat eine Fahrzeit $t_e(x_e)=a_e+b_e\,(x_e/c_e)^p$, die mit dem Verkehr $x_e$ steigt (BPR-Form: $a_e$ Freifahrtzeit, Kapazität $c_e$, $b_e=0{,}15\,a_e$, $p=4$).
 2. **Nutzergleichgewicht:** der Verkehr $x$ löst $\min\sum_e\int_0^{x_e}t_e(s)\,ds$ unter der Flusserhaltung je Zonenpaar (Beckmann). Die Kantenflüsse sind eindeutig, die Wegeflüsse im Allgemeinen nicht.
 3. **Alles-oder-nichts:** mit den Fahrzeiten $t_e(x_e)$ als Kantenlängen legt man jedes Zonenpaar komplett auf einen kürzesten Weg (Dijkstra je Ursprung): das ergibt den Verkehr $y$. Das ist die beste Richtung für die *linearisierte* Aufgabe.
-4. **Schritt:** $x\leftarrow x+a\,(y-x)$. Die Schrittweite $a$: **exakte Suche** (Bisektion auf der Richtungsableitung), **MSA** ($a=1/(k+1)$, keine Suche) oder **fest** 0,5 (Negativkontrolle: es zickzackt). Das **konjugierte Frank-Wolfe** ersetzt $y$ durch einen Zielpunkt, der zur vorigen Richtung konjugiert ist, und zickzackt weniger.
+4. **Schritt:** $x\leftarrow x+a\,(y-x)$. Die Schrittweite $a$: **exakte Liniensuche** (Bisektion auf der Richtungsableitung), **MSA** ($a=1/(k+1)$, keine Liniensuche) oder **fest** 0,5 (Negativkontrolle: es zickzackt). Das **konjugierte Frank-Wolfe** ersetzt $y$ durch einen Zielpunkt, der zur vorigen Richtung konjugiert ist, und zickzackt weniger.
 5. **Lücke:** $\big(\sum x_e t_e-\sum y_e t_e\big)/\sum x_e t_e$ ist 0 genau im Gleichgewicht und misst, wie viel Fahrzeit ein Wechsel auf die kürzesten Wege noch sparen würde. Das **Systemoptimum** (kleinste Gesamtfahrzeit) ist dieselbe Aufgabe mit den **Grenzkosten** $t_e+x_e t_e'$ statt der Fahrzeit.
         """
     )
@@ -120,7 +120,7 @@ with st.sidebar:
     mode = st.radio("Ziel", list(C.MODES), key="mode_radio", format_func=lambda k: C.MODES[k],
                     help="Nutzergleichgewicht: jeder wählt für sich den schnellsten Weg (Fahrzeit als Kosten). Systemoptimum: kleinste Gesamtfahrzeit (Grenzkosten als Kosten); derselbe Löser, andere Kosten.")
     method = st.radio("Verfahren", list(C.METHODS), key="method_radio", format_func=lambda k: C.METHODS[k],
-                      help="Frank-Wolfe mit exakter Schrittweitensuche, mit fester Schrittfolge 1/(k+1) (MSA), konjugiert - oder mit festem Schritt 0,5, der nicht konvergiert (Negativkontrolle).")
+                      help="Frank-Wolfe mit exakter Liniensuche, mit fester Schrittfolge 1/(k+1) (MSA), konjugiert - oder mit festem Schritt 0,5, der nicht konvergiert (Negativkontrolle).")
     iterations = st.radio("Iterationsgrenze", list(C.ITERATIONS), key="iterations_radio", horizontal=True, help="Höchstzahl der Iterationen; die Rechnung stoppt früher, wenn die relative Lücke unter 1e-6 fällt.")
     if net_key == "grid":
         seed_widget("side_slider")
@@ -215,7 +215,7 @@ with st.spinner("Rechne die Verfahren..."):
 st.plotly_chart(build_gap(cmp["results"], height=340), width="stretch", key="compare_chart")
 st.table({"Verfahren": [C.METHODS[m] for m in methods],
           **{f"Iterationen bis Lücke {t:.0e}": [("–" if cmp["table"][m][i] is None else str(cmp["table"][m][i])) for m in methods] for i, t in enumerate(C.TOLS[:3])}})
-st.caption(f"Iterationen, bis die relative Lücke erstmals unter die Schwelle fällt; „–“ heißt: nicht innerhalb von {iterations} Iterationen. Jede Iteration braucht {len(net.origins())} Kürzeste-Wege-Läufe (einen je Ursprungszone); die Schrittweitensuche kostet dazu nur Auswertungen der Fahrzeitfunktion, keine Wegesuche.")
+st.caption(f"Iterationen, bis die relative Lücke erstmals unter die Schwelle fällt; „–“ heißt: nicht innerhalb von {iterations} Iterationen. Jede Iteration braucht {len(net.origins())} Kürzeste-Wege-Läufe (einen je Ursprungszone); die Liniensuche kostet dazu nur Auswertungen der Fahrzeitfunktion, keine Wegesuche.")
 
 st.markdown("---")
 
@@ -254,7 +254,7 @@ else:
         st.caption("Wer nur die Gesamtfahrzeit braucht, ist mit einer Lücke von 1e-3 fertig; wer Kantenflüsse (etwa für eine Maut oder eine Straßenplanung) braucht, rechnet weiter.")
 
 st.subheader("🔬 Wie hängt der Endspurt von der Last ab?")
-st.caption("Iterationen bis zur Lücke 1e-2, 1e-3 und 1e-4 (Frank-Wolfe mit exakter Schrittweite, Mittel über 5 feste Netze; „nicht erreicht“ zählt als Grenze + 1 = 301) und Preis der Anarchie je Lastfaktor.")
+st.caption("Iterationen bis zur Lücke 1e-2, 1e-3 und 1e-4 (Frank-Wolfe mit exakter Liniensuche, Mittel über 5 feste Netze; „nicht erreicht“ zählt als Grenze + 1 = 301) und Preis der Anarchie je Lastfaktor.")
 if net_key != "grid":
     st.info("Für dieses Experiment das Stadtgitter wählen.")
 else:
@@ -280,7 +280,7 @@ else:
             dist = ev.distribution(ev.Params(*params))
         st.plotly_chart(build_dist(dist), width="stretch", key="dist_chart")
         st.table({"Verfahren": [C.METHODS[m] for m in ("fw", "msa", "cfw")], "Lücke 1e-4 nicht erreicht": [f"{dist[m + '_missed']} von {dist['n']}" for m in ("fw", "msa", "cfw")]})
-        st.caption("Das konjugierte Verfahren braucht im Mittel weniger Iterationen (bis zur Lücke 1e-4 weniger als die Hälfte der exakten Suche), ist aber nicht in jedem Netz besser: in einzelnen Netzen braucht es bis 1e-3 ein paar Iterationen länger als die Suche. MSA spart die Schrittweitensuche, liegt aber bei der Genauigkeit hinter der exakten Suche.")
+        st.caption("Das konjugierte Verfahren braucht im Mittel weniger Iterationen (bis zur Lücke 1e-4 weniger als die Hälfte der exakten Liniensuche), ist aber nicht in jedem Netz besser: in einzelnen Netzen braucht es bis 1e-3 ein paar Iterationen länger als Frank-Wolfe mit exakter Liniensuche. MSA spart die Liniensuche, liegt aber bei der Genauigkeit hinter der exakten Liniensuche.")
 
 st.subheader("🔬 Sind die Kantenflüsse eindeutig?")
 st.caption("Frank-Wolfe und konjugiertes Frank-Wolfe nutzen ganz verschiedene Zwischenschritte; am Ende müssen sie bei denselben Kantenflüssen ankommen.")
@@ -346,9 +346,9 @@ Die Zielfunktion ist streng konvex in $x$: die Kantenflüsse sind eindeutig.
 
 **Frank-Wolfe.** Mit den Kosten $t(x^k)$ ist $y^k$ (Alles-oder-nichts) die Lösung der linearisierten Aufgabe, $y^k-x^k$ eine Abstiegsrichtung; $x^{k+1}=x^k+a_k(y^k-x^k)$. Relative Lücke $g_k=\big(t(x^k)^\top(x^k-y^k)\big)/\big(t(x^k)^\top x^k\big)\ge0$; sie ist 0 genau im Gleichgewicht. Bekannt: die Konvergenz ist sublinear, die Iterationen wachsen etwa mit $1/\varepsilon$; der Grund ist das Zickzack, weil $y^k$ eine Ecke ist und die Lösung im Innern der Fläche liegt.
 
-**MSA:** $a_k=1/(k+1)$ ohne Suche. **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013): $s^k=\alpha_k s^{k-1}+(1-\alpha_k)y^k$ mit $\alpha_k=\dfrac{(s^{k-1}-x^k)^\top H_k\,(y^k-x^k)}{(s^{k-1}-x^k)^\top H_k\,(y^k-s^{k-1})}\in[0,1-\delta]$ und der (diagonalen) Hesse-Matrix $H_k$ der Zielfunktion; Richtung $s^k-x^k$, sonst wie Frank-Wolfe. Ist $x^k$ schon auf $s^{k-1}$ angekommen, stößt $\alpha_k$ an die Grenze $1-\delta$ (der neue Zielpunkt wäre fast der alte) oder ist die Richtung keine Abstiegsrichtung, beginnt das Verfahren mit der Frank-Wolfe-Richtung neu.
+**MSA:** $a_k=1/(k+1)$ ohne Liniensuche. **Konjugiertes Frank-Wolfe** (Mitradjieva und Lindberg 2013): $s^k=\alpha_k s^{k-1}+(1-\alpha_k)y^k$ mit $\alpha_k=\dfrac{(s^{k-1}-x^k)^\top H_k\,(y^k-x^k)}{(s^{k-1}-x^k)^\top H_k\,(y^k-s^{k-1})}\in[0,1-\delta]$ und der (diagonalen) Hesse-Matrix $H_k$ der Zielfunktion; Richtung $s^k-x^k$, sonst wie Frank-Wolfe. Ist $x^k$ schon auf $s^{k-1}$ angekommen, stößt $\alpha_k$ an die Grenze $1-\delta$ (der neue Zielpunkt wäre fast der alte) oder ist die Richtung keine Abstiegsrichtung, beginnt das Verfahren mit der Frank-Wolfe-Richtung neu.
 
-**Aufwand.** Eine Iteration kostet einen Dijkstra-Lauf je Ursprungszone (das Kürzeste-Wege-Orakel der Hauptlinie); die Schrittweitensuche rechnet nur Fahrzeitfunktionen aus.
+**Aufwand.** Eine Iteration kostet einen Dijkstra-Lauf je Ursprungszone (das Kürzeste-Wege-Orakel der Hauptlinie); die Liniensuche rechnet nur Fahrzeitfunktionen aus.
 
 Implementiert in `fw_scenario.py` (Netz, Zonen, Lehrnetze, eigener Zufallsgenerator), `fw_algorithm.py` (Kosten, Alles-oder-nichts, Frank-Wolfe, MSA, konjugiert, Lücke, Preis der Anarchie), `fw_evaluation.py` (Vergleiche, Genauigkeit, Lastreihe, Verteilungen).
         """
